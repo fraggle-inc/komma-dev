@@ -53,15 +53,15 @@ def make_roc_pr_plot(y_hat, y):
         aggregate_pr_auc += pr_auc
 
         # Plotting the metrics
-        ax0.plot(fpr, tpr, 'ob-')
-        ax1.plot(recall, precision, 'ob-')
+        ax0.plot(fpr, tpr, 'ob-', color='grey', alpha=0.6)
+        ax1.plot(recall, precision, 'o-', color='grey', alpha=0.6)
     
     # Plotting the average metrics
     mean_tpr = np.divide(aggregate_tpr, (idx+1))
     mean_roc_auc = auc(mean_fpr, mean_tpr)
     mean_pr_auc = aggregate_pr_auc/(idx+1)
 
-    ax0.plot(mean_fpr, mean_tpr, lw=3, color='k', label='Average recall ({0:.2f})'.format(mean_roc_auc))
+    ax0.plot(mean_fpr, mean_tpr, lw=3, color='r', label='Average recall ({0:.2f})'.format(mean_roc_auc))
     ax1.plot(1,1, lw=3, color='k', label='Mean PR AUC ({0:.2f})'.format(mean_pr_auc))
 
     # Styling the ticks and gridlines
@@ -71,3 +71,23 @@ def make_roc_pr_plot(y_hat, y):
     ax0.legend()
     ax1.legend()
     plt.show()
+
+    def reverse_embedding(x, y, reverse_vocabulary, y_hat = None, threshold=0.9):
+        if y_hat is None:
+            words = [reverse_vocabulary[int_rep] for int_rep in x]
+            idx = np.where(y==1)[0][0]
+            words[idx] = words[idx]+',' 
+            print(' '.join(words))
+        else:
+            words = [reverse_vocabulary[int_rep] for int_rep in x]
+            idx_true = np.where(y==1)[0]
+            idx_pred = np.where(y_hat>threshold)[0]
+            for true_idx in idx_true:
+                if true_idx in idx_pred:
+                    words[true_idx] = words[true_idx]+', [tp]'
+                else:
+                    words[true_idx] = words[true_idx]+', [fn]'
+            for pred_idx in idx_pred:
+                if pred_idx not in idx_true:
+                    words[pred_idx] = words[pred_idx]+', [fp]'
+            print(' '.join(words))
