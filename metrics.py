@@ -62,7 +62,7 @@ def make_roc_pr_plot(y_hat, y):
     mean_pr_auc = aggregate_pr_auc/(idx+1)
 
     ax0.plot(mean_fpr, mean_tpr, lw=3, color='r', label='Average recall ({0:.2f})'.format(mean_roc_auc))
-    ax1.plot(1,1, lw=3, color='k', label='Mean PR AUC ({0:.2f})'.format(mean_pr_auc))
+    ax1.plot(1,1, lw=3, color='r', label='Mean PR AUC ({0:.2f})'.format(mean_pr_auc))
 
     # Styling the ticks and gridlines
     ticks_and_gridlines(ax0)
@@ -73,6 +73,12 @@ def make_roc_pr_plot(y_hat, y):
     plt.show()
 
     def reverse_embedding(x, y, reverse_vocabulary, y_hat = None, threshold=0.9):
+        """
+            
+
+            If comma placement predictions are supplied it also evaulates true positives, 
+            false positives and false negatives.
+        """
         if y_hat is None:
             words = [reverse_vocabulary[int_rep] for int_rep in x]
             idx = np.where(y==1)[0][0]
@@ -91,3 +97,31 @@ def make_roc_pr_plot(y_hat, y):
                 if pred_idx not in idx_true:
                     words[pred_idx] = words[pred_idx]+', [fp]'
             print(' '.join(words))
+
+def get_pr_per_comma(y, y_hat, threshold):
+    P = np.sum(y)
+    tp = 0
+    fp = 0
+    fn = 0
+    for idx in range(y_hat.shape[0]):
+        idx_true = np.where(y[idx, :]==1)[0]
+        idx_pred = np.where(y_hat[idx, :]>threshold)[0]
+        for true_idx in idx_true:
+            if true_idx in idx_pred:
+                tp=tp+1
+            else:
+                fn=fn+1
+        for pred_idx in idx_pred:
+            if pred_idx not in idx_true:
+                fp=fp+1
+
+    precision = tp/(tp+fp)
+    recall = tp/P
+    return precision, recall
+
+def pr_analysis(y_test, y_hat):
+    thresholds = np.arange(0,1,0.01)
+    pr = np.zeros((1, len(thresholds)))
+    re = np.zeros((1, len(thresholds)))
+    for idx, threshold in enumerate(thresholds):
+        pr[0, idx], re[0, idx] = get_pr_per_comma(y_test, y_hat, threshold=threshold)
