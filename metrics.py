@@ -58,7 +58,7 @@ def make_roc_pr_plot(y_hat, y):
     
     # Plotting the average metrics
     mean_tpr = np.divide(aggregate_tpr, (idx+1))
-    mean_roc_auc = metrics.auc(mean_fpr, mean_tpr)
+    mean_roc_auc = auc(mean_fpr, mean_tpr)
     mean_pr_auc = aggregate_pr_auc/(idx+1)
 
     ax0.plot(mean_fpr, mean_tpr, lw=3, color='k', label='Average recall ({0:.2f})'.format(mean_roc_auc))
