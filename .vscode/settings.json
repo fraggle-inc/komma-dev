@@ -1,0 +1,43 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "[markdown]": {
+        "editor.formatOnSave": true,
+        "editor.wordWrap": "on",
+        "editor.renderWhitespace": "all",
+        "editor.acceptSuggestionOnEnter": "off"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.mypy_cache": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/*.pyc": true,
+        "**/*.bak": true,
+        "**/__pycache__": true,
+        "**/.cache": true,
+        "**/.tox": true,
+        "**/*.egg-info": true
+    },
+    "editor.rulers": [
+        120
+    ],
+    "python.formatting.yapfArgs": [
+        "--style",
+        "{column_limit: 120}"
+    ],
+    "editor.quickSuggestions": true,
+    "editor.wordWrap": "off",
+    // whitelist numpy to remove lint errors
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=numpy",
+        "--ignored-classes=optparse.Values,thread._local,_thread._local,NpzFile"
+    ],
+    "python.unitTest.pyTestArgs": [
+        "--exitfirst",
+        "--verbose"
+    ],
+    "python.unitTest.pyTestEnabled": true,
+    "python.linting.mypyEnabled": true,
+    "cSpell.ignorePaths": ["requirements.txt", "**/.vscode"]
+}
