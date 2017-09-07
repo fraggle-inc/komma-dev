@@ -1,7 +1,6 @@
-
 """
     This script defines the functions used for evaluating the quality of the comma placement 
-    model. This includes functions for evaluating the training as well as final metrics, such
+    model. This includes functions for evaluating the training of the model, the performance, as well as final metrics, such
     as precision and recall.
 """
 import matplotlib.pyplot as plt
@@ -31,7 +30,7 @@ def collapse_multi_task_to_single_metric(y_hat, y):
     """
     return y_hat, y
 
-def make_roc_pr_plot(y_hat, y):
+def make_roc_pr_plot_per_class(y_hat, y):
     fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(28,14))
 
     # Initializing variables that will be updated in the loop
@@ -72,34 +71,82 @@ def make_roc_pr_plot(y_hat, y):
     ax1.legend()
     plt.show()
 
-    def reverse_embedding(x, y, reverse_vocabulary, y_hat = None, threshold=0.9):
-        """
-            
+def make_roc_pr_plot(y, y_hat):
+    fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(28,14))
 
-            If comma placement predictions are supplied it also evaulates true positives, 
-            false positives and false negatives.
-        """
-        if y_hat is None:
-            words = [reverse_vocabulary[int_rep] for int_rep in x]
-            idx = np.where(y==1)[0][0]
-            words[idx] = words[idx]+',' 
-            print(' '.join(words))
-        else:
-            words = [reverse_vocabulary[int_rep] for int_rep in x]
-            idx_true = np.where(y==1)[0]
-            idx_pred = np.where(y_hat>threshold)[0]
-            for true_idx in idx_true:
-                if true_idx in idx_pred:
-                    words[true_idx] = words[true_idx]+', [tp]'
-                else:
-                    words[true_idx] = words[true_idx]+', [fn]'
-            for pred_idx in idx_pred:
-                if pred_idx not in idx_true:
-                    words[pred_idx] = words[pred_idx]+', [fp]'
-            print(' '.join(words))
+    precision, recall, fpr = pr_analysis(y, y_hat)
+    roc_auc = auc(fpr, recall)
+    pr_auc = auc(recall, precision)
+
+    # Plotting the metrics
+    ax0.plot(fpr, recall, 'ob-', label='AUC ({0:.2f}'.format(roc_auc))
+    ax1.plot(recall, precision, 'o-', label='AUC ({0:.2f}'.format(pr_auc))
+
+    # Styling the ticks and gridlines
+    ticks_and_gridlines(ax0)
+    ticks_and_gridlines(ax1)
+    
+    # Adding legends
+    ax0.legend()
+    ax1.legend()
+    plt.show()
+
+def reverse_embedding(x, y, reverse_vocabulary, y_hat = None, threshold=0.9):
+    """
+        Inputs
+        x: An array of embedded words. 
+        y: The target for the embedded words. This is an binary vector of the same 
+        length as x. The elements of the vector are 1 is a comma should be placed 
+        after the word and 0 otherwise.
+        reverse_vocabulary: A dictionary mapping embedded words to real words.
+        y_hat: (Optional) A vector similar to y, but each element contains the
+        probability that a comma should be placed after the word.
+        threshold: The probability threshold that is used to make y_hat a binary 
+        vector. 
+
+        Output:
+        Prints the sentence with the correct (ground truth) commas. If y_hat is
+        supplied it also evaulates true positives, false positives and false negatives.
+    """
+    if y_hat is None:
+        words = [reverse_vocabulary[int_rep] for int_rep in x]
+        idx = np.where(y==1)[0][0]
+        words[idx] = words[idx]+',' 
+        print(' '.join(words))
+    else:
+        words = [reverse_vocabulary[int_rep] for int_rep in x]
+        idx_true = np.where(y==1)[0]
+        idx_pred = np.where(y_hat>threshold)[0]
+        for true_idx in idx_true:
+            if true_idx in idx_pred:
+                words[true_idx] = words[true_idx]+', [tp]'
+            else:
+                words[true_idx] = words[true_idx]+', [fn]'
+        for pred_idx in idx_pred:
+            if pred_idx not in idx_true:
+                words[pred_idx] = words[pred_idx]+', [fp]'
+        print(' '.join(words))
 
 def get_pr_per_comma(y, y_hat, threshold):
+    """
+        Input:
+        y: Ground truth comma placement. 
+        y_hat: Predicted comma placement
+        threshold: The probability threshold that turns y_hat into a binary vector.
+
+        Output:
+        precision
+        recall
+        fpr (false positive rate)
+
+        TODO:
+        Currently the number of Negatives (words without commas) is unknown. We estimate it by
+        subtracting the number of commas from the total dimension of y. But this includes all the 
+        padded sentences, so the number of Negative will be overestimated. This makes the ROC curve
+        look better than it is.
+    """
     P = np.sum(y)
+    N = (y.shape[0]*y.shape[1])-P # Bad approximation of actual number of Negatives (words without commas)
     tp = 0
     fp = 0
     fn = 0
@@ -117,11 +164,25 @@ def get_pr_per_comma(y, y_hat, threshold):
 
     precision = tp/(tp+fp)
     recall = tp/P
-    return precision, recall
+    fpr = fp/N
+    return precision, recall, fpr
 
-def pr_analysis(y_test, y_hat):
+def pr_analysis(y, y_hat):
+    """
+        Input:
+        y: Ground truth comma placement. 
+        y_hat: Predicted comma placement
+        threshold: The probability threshold that turns y_hat into a binary vector.
+
+        Output:
+        precision
+        recall
+        fpr (false positive rate)
+    """
     thresholds = np.arange(0,1,0.01)
-    pr = np.zeros((1, len(thresholds)))
-    re = np.zeros((1, len(thresholds)))
+    precision = np.zeros((len(thresholds)))
+    recall = np.zeros((len(thresholds)))
+    fpr = np.zeros((len(thresholds)))
     for idx, threshold in enumerate(thresholds):
-        pr[0, idx], re[0, idx] = get_pr_per_comma(y_test, y_hat, threshold=threshold)
+        precision[idx], recall[idx], fpr[idx] = get_pr_per_comma(y, y_hat, threshold=threshold)
+    return precision, recall, fpr
