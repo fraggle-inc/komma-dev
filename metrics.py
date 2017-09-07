@@ -186,3 +186,15 @@ def pr_analysis(y, y_hat):
     for idx, threshold in enumerate(thresholds):
         precision[idx], recall[idx], fpr[idx] = get_pr_per_comma(y, y_hat, threshold=threshold)
     return precision, recall, fpr
+
+def get_optimal_threshold(precision, recall, thresholds):
+    """
+        Estimates the best threshold based on a F1 analysis.
+        Returns the threshold together with the corresponding precision and recall.
+    """
+    f1_score = 2*(precision*recall)/(precision+recall)
+    max_idx = np.where(f1_score == np.nanmax(f1_score))
+    threshold = thresholds[max_idx]
+    precision_at_threshold = precision[max_idx]
+    recall_at_threshold = recall[max_idx]
+    return threshold, precision_at_threshold, recall_at_threshold
