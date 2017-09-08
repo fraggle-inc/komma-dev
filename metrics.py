@@ -113,6 +113,12 @@ def reverse_embedding(x, y, reverse_vocabulary, y_hat = None, threshold=0.9):
         idx = np.where(y==1)[0][0]
         words[idx] = words[idx]+',' 
         print(' '.join(words))
+    if (y is None) and (y_hat is not None) :
+        words = [reverse_vocabulary[int_rep] for int_rep in x]
+        idx_pred = np.where(y_hat>threshold)[1]
+        for idx in idx_pred:
+            words[idx] = words[idx]+', (suggested)'
+        print(' '.join(words))
     else:
         words = [reverse_vocabulary[int_rep] for int_rep in x]
         idx_true = np.where(y==1)[0]
