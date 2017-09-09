@@ -11,7 +11,6 @@ import keras
 class callback(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
         self.sentence_accuracy = []
-        self.pr_scores = []
         self.pr_auc = []
         self.f1_scores = []
         self.precision = []
@@ -21,7 +20,7 @@ class callback(keras.callbacks.Callback):
         return
  
     #def on_epoch_begin(self, logs={}):
-    #    return
+    #   return
  
     def on_epoch_end(self, epoch, logs={}):
         X = self.validation_data[0]
@@ -32,13 +31,13 @@ class callback(keras.callbacks.Callback):
         thresholds = np.arange(0, 1, 0.01)
         best_threshold, best_f1, precision_at_threshold, recall_at_threshold = get_optimal_threshold(precision, recall, thresholds)
         sentence_accuracy = get_sentence_accuracy(y, y_hat, best_threshold)        
-        pr_auc = auc(recall, precision)
+        pr_auc = auc(recall[np.where(recall>0)], precision[np.where(recall>0)])
         
-        self.f1_scores.append(best_f1[0])
+        self.sentence_accuracy.append(sentence_accuracy)
         self.precision.append(precision_at_threshold)
         self.recall.append(recall_at_threshold)
         self.pr_auc.append(pr_auc)
-        self.sentence_accuracy.append(sentence_accuracy)
+        self.f1_scores.append(best_f1[0])
         return
  
     def on_batch_begin(self, batch, logs={}):
@@ -101,7 +100,7 @@ def make_roc_pr_plot_per_class(y_hat, y):
         aggregate_tpr += np.interp(mean_fpr, fpr, tpr)
         # Calculating precision and recall
         precision, recall, threshold = precision_recall_curve(y[:, idx], y_hat[:, idx]);
-        pr_auc = auc(recall, precision)
+        pr_auc = auc(recall[np.where(recall>0)], precision[np.where(recall>0)])
         aggregate_pr_auc += pr_auc
         # Plotting the metrics
         ax0.plot(fpr, tpr, 'ob-', color='grey', alpha=0.6)
@@ -125,10 +124,10 @@ def make_roc_pr_plot(y, y_hat):
     # Calculating metrics
     precision, recall, fpr = pr_analysis(y, y_hat)
     roc_auc = auc(fpr, recall)
-    pr_auc = auc(recall, precision)
+    pr_auc = auc(recall[np.where(recall>0)], precision[np.where(recall>0)])
     # Plotting the metrics
-    ax0.plot(fpr, recall, 'ob-', label='AUC ({0:.2f}'.format(roc_auc))
-    ax1.plot(recall, precision, 'o-', label='AUC ({0:.2f}'.format(pr_auc))
+    ax0.plot(fpr, recall, 'ob-', label='AUC ({0:.2f})'.format(roc_auc))
+    ax1.plot(recall, precision, 'o-', label='AUC ({0:.2f})'.format(pr_auc))
     # Showing the optimal f1 score
     thresholds = np.arange(0,1,0.01)
     threshold, best_f1, precision_at_threshold, recall_at_threshold = get_optimal_threshold(precision, recall, thresholds)
