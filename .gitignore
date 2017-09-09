@@ -120,3 +120,6 @@ ds-env2.7/
 
 # MyPy
 .mypy_cache/
+
+# VS Code
+.vscode/*.sql
