@@ -31,6 +31,7 @@ pandocfilters==1.4.2
 pep8==1.7.0
 pexpect==4.2.1
 pickleshare==0.7.4
+pluggy==0.5.1
 prompt-toolkit==1.0.15
 protobuf==3.4.0
 ptyprocess==0.5.2
@@ -55,8 +56,10 @@ tensorflow-tensorboard==0.1.5
 terminado==0.6
 testpath==0.3.1
 tornado==4.5.2
+tox==2.8.1
 traitlets==4.3.2
 typed-ast==1.0.4
+virtualenv==15.1.0
 wcwidth==0.1.7
 Werkzeug==0.12.2
 widgetsnbextension==3.0.2

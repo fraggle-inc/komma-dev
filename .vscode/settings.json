@@ -39,5 +39,5 @@
     ],
     "python.unitTest.pyTestEnabled": true,
     "python.linting.mypyEnabled": true,
-    "cSpell.ignorePaths": ["requirements.txt", "**/.vscode"]
+    "cSpell.ignorePaths": ["requirements.txt", "**/.vscode", ".env"]
 }
