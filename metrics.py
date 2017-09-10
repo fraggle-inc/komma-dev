@@ -237,3 +237,10 @@ def get_optimal_threshold(precision, recall, thresholds):
     recall_at_threshold = recall[max_idx]
     best_f1 = f1_score[max_idx]
     return threshold, best_f1, precision_at_threshold, recall_at_threshold
+
+def sample_hyper_parameter_space():
+    DROPOUT =  np.random.rand()
+    LEARNING_RATE = 10**(-np.random.randint(1,5))
+    BATCH_SIZE = 2**np.random.randint(3,11)
+    EMBED_DIM = 2**np.random.randint(3,8)
+    EPOCHS = 4
