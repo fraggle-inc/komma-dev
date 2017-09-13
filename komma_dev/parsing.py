@@ -1,7 +1,7 @@
 # coding: utf8
 # pylint: disable=too-few-public-methods
 
-"""Functions for building vocabulary."""
+"""Functions for parsing and tokenizing strings as sentences."""
 import regex
 
 WHITESPACE_TYPE = "WHITESPACE"
@@ -9,7 +9,7 @@ TEXT_TYPE = "TEXT"
 NUMBER_TYPE = "NUMBER"
 PREFIX_TYPE = "PREFIX"
 SUFFIX_TYPE = "SUFFIX"
-NUMBER_REGEX = regex.compile(r"^([\+-])?([0-9]+([\+0-9,\.-]*[0-9])?),?$")
+NUMBER_REGEX = regex.compile(r"^([\+-])?([0-9]+([\+0-9,\.-]*[0-9\.])?),?$")
 NUMBER_PLACEHOLDER = "NUMBER"
 
 
@@ -114,6 +114,10 @@ class Sentence():
         """Initialize a new sentence with specified chunks."""
         self.chunks = chunks
 
+    def __str__(self):
+        """Return a printable string representing the sentence."""
+        return self.text
+
     @property
     def text(self):
         """Return the text of the sentence."""
@@ -122,6 +126,7 @@ class Sentence():
     @property
     def commas(self):
         """Return a list of length equal to number of chunks where 1 indicates a comma and zero indicates no comma."""
+        # TODO: create a backing variable. Maybe return an NP array.
         return [1 if chunk.comma else 0 for chunk in self.chunks]
 
     @property
@@ -139,7 +144,7 @@ class Chunk(object):
         self.trailing_whitespace = trailing_whitespace
         self.kind = kind
 
-    def __repr__(self):
+    def __str__(self):
         """Return a printable string representing the chunk."""
         return self.name + self.trailing_whitespace
 
@@ -161,9 +166,12 @@ class Chunk(object):
     @property
     def clean_name(self):
         """Return a clean version of the chunk contents. This means stripping trailing comma."""
+        # TODO: Create a backing variable.
         temp = self.name
-        while temp[-1] == ",":
+        # TODO: Why does this crash if the left conjunct is not there? That means we have empty tokens or comma only?
+        while temp and temp[-1] == ",":
             temp = temp[:-1]
+        temp = temp.replace(".", "")
         return temp
 
 
@@ -175,7 +183,7 @@ class Token(object):
         self.name = name
         self.kind = kind
 
-    def __repr__(self):
+    def __str__(self):
         """Return a printable string representing the token."""
         return self.name
 
