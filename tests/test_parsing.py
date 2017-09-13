@@ -1,12 +1,12 @@
 # coding: utf8
-"""Tests for string tokenization."""
+"""Tests for string parsing."""
 # pylint: disable=protected-access,too-many-public-methods,no-self-use,too-few-public-methods,C0103
 
 from komma_dev.parsing import StringParser, _split_string
 
 
-class TestTokenization(object):
-    """Test class for string tokenization."""
+class TestParsing(object):
+    """Test class for string parsing."""
 
     def test_substrings(self):
         """Test that a simple string can be split correctly."""
@@ -34,10 +34,10 @@ class TestTokenization(object):
         actual_chunks_names = [token.name for token in actual_sentence.chunks]
         assert expected_chunk_names == actual_chunks_names
         assert dirty == actual_sentence.text
-        expected_features = ["Der", "var", "NUMBER", "kr.", "i", "pungen"]
+        expected_features = ["Der", "var", "NUMBER", "kr", "i", "pungen"]
         assert expected_features == actual_sentence.features
 
-    def test_parse_complicated(self):
+    def test_parse_complicated_1(self):
         """Test that a string including multiple whitespace as well as commas and number groups is parsed correctly."""
         dirty = "Du  kan ringe, til 'mig' på +45 89674523, eller 7856"
         expected_chunk_names = ["Du", "kan", "ringe,", "til", "'", "mig", "'", "på", "+45 89674523,", "eller", "7856"]
@@ -49,4 +49,18 @@ class TestTokenization(object):
         expected_features = ["Du", "kan", "ringe", "til", "'", "mig", "'", "på", "NUMBER", "eller", "NUMBER"]
         assert expected_features == actual_sentence.features
         expected_commas = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0]
+        assert expected_commas == actual_sentence.commas
+
+    def test_parse_complicated_2(self):
+        """Test that a string including multiple whitespace as well as commas and number groups is parsed correctly."""
+        dirty = "Du  kan ringe, på +45 89674523, d. 27. maj"
+        expected_chunk_names = ["Du", "kan", "ringe,", "på", "+45 89674523,", "d.", "27.", "maj"]
+        parser = StringParser()
+        actual_sentence = parser.parse(dirty)
+        actual_chunks_names = [token.name for token in actual_sentence.chunks]
+        assert expected_chunk_names == actual_chunks_names
+        assert dirty == actual_sentence.text
+        expected_features = ["Du", "kan", "ringe", "på", "NUMBER", "d", "NUMBER", "maj"]
+        assert expected_features == actual_sentence.features
+        expected_commas = [0, 0, 1, 0, 1, 0, 0, 0]
         assert expected_commas == actual_sentence.commas
