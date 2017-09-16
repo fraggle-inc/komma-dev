@@ -14,7 +14,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     author="Soren Lind Kristiansen",
     author_email="sorenlind@mac.com",
-    url="https://github.com/fraggle-inc/komma-dev/"
+    url="https://github.com/fraggle-inc/komma-dev/",
     keywords="natural language processing danish",
     platforms=["Any"],
     packages=find_packages(),
