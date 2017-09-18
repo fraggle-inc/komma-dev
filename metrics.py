@@ -165,6 +165,18 @@ def get_sentence_accuracy(y, y_hat, threshold):
     sentence_accuracy = n_correct/y.shape[0]
     return sentence_accuracy
 
+def get_best_sentence_accuracy(y, y_hat):
+    thresholds = np.arange(0,1,0.01)
+    sentence_accuracies = []
+    for threshold in thresholds:
+        sentence_accuracy = get_sentence_accuracy(y, y_hat, threshold)
+        sentence_accuracies.append(sentence_accuracy)
+    sentence_accuracies = np.array(sentence_accuracies)
+    max_idx = np.where(sentence_accuracies == np.nanmax(sentence_accuracies))
+    threshold = thresholds[max_idx]
+    best_sentence_accuracy = sentence_accuracies[max_idx]
+    return best_sentence_accuracy, threshold
+
 def get_pr_per_comma(y, y_hat, threshold):
     """
         Input:
