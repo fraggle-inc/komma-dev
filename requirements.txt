@@ -64,3 +64,4 @@ wcwidth==0.1.7
 Werkzeug==0.12.2
 widgetsnbextension==3.0.2
 wrapt==1.10.11
+matplotlib
