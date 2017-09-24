@@ -27,7 +27,7 @@ class callback(keras.callbacks.Callback):
         y = self.validation_data[1]
         y_hat = self.model.predict_proba(X)
         
-        precision, recall, fpr = pr_analysis(y, y_hat)
+        precision, recall, fpr = pr_analysis(y, y_hat, X)
         thresholds = np.arange(0, 1, 0.01)
         best_threshold, best_f1, precision_at_threshold, recall_at_threshold = get_optimal_threshold(precision, recall, thresholds)
         sentence_accuracy = get_sentence_accuracy(y, y_hat, best_threshold)        
@@ -119,10 +119,10 @@ def make_roc_pr_plot_per_class(y_hat, y):
     ax1.legend()
     plt.show()
 
-def make_roc_pr_plot(y, y_hat):
+def make_roc_pr_plot(y, y_hat, X):
     fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(28,14))
     # Calculating metrics
-    precision, recall, fpr = pr_analysis(y, y_hat)
+    precision, recall, fpr = pr_analysis(y, y_hat, X)
     roc_auc = auc(fpr, recall)
     pr_auc = auc(recall[np.where(recall>0)], precision[np.where(recall>0)])
     # Plotting the metrics
@@ -177,11 +177,16 @@ def get_best_sentence_accuracy(y, y_hat):
     best_sentence_accuracy = sentence_accuracies[max_idx]
     return best_sentence_accuracy, threshold
 
-def get_pr_per_comma(y, y_hat, threshold):
+def get_pr_per_comma(y, y_hat, X, threshold):
     """
         Input:
         y: Ground truth comma placement. 
         y_hat: Predicted comma placement
+        X: The input vector for the model. This is necessary because we need to know how many
+        negatives (tokens not follow by commas) each train/test/dev example has. Since we
+        zero-pad the input, we need the input so we can ignore the zero padding. Otherwise we
+        will overestimate the number of negatives. We assume that no tokens are mapped to the
+        0 other than the zero-padding.
         threshold: The probability threshold that turns y_hat into a binary vector.
 
         Output:
@@ -195,29 +200,32 @@ def get_pr_per_comma(y, y_hat, threshold):
         padded sentences, so the number of Negative will be overestimated. This makes the ROC curve
         look better than it is.
     """
-    P = np.sum(y)
-    N = (y.shape[0]*y.shape[1])-P # Bad approximation of actual number of Negatives (words without commas)
+    negatives = 0 
+    positives = 0
     tp = 0
     fp = 0
     fn = 0
     for idx in range(y_hat.shape[0]):
+        positives_in_example = np.sum(y[idx, :])
+        negatives_in_example = np.sum(X[idx]>0) - positives_in_example
+        positives += positives_in_example
+        negatives += negatives_in_example
         idx_true = np.where(y[idx, :]==1)[0]
         idx_pred = np.where(y_hat[idx, :]>threshold)[0]
         for true_idx in idx_true:
             if true_idx in idx_pred:
-                tp=tp+1
+                tp += 1
             else:
-                fn=fn+1
+                fn += 1
         for pred_idx in idx_pred:
-            if pred_idx not in idx_true:
-                fp=fp+1
-
+            if (pred_idx not in idx_true) and (pred_idx <= negatives_in_example):
+                fp += 1
     precision = np.divide(tp, (tp+fp))
-    recall = np.divide(tp, P)
-    fpr = np.divide(fp, N)
+    recall = np.divide(tp, positives)
+    fpr = np.divide(fp, negatives)
     return precision, recall, fpr
 
-def pr_analysis(y, y_hat):
+def pr_analysis(y, y_hat, X):
     """
         Input:
         y: Ground truth comma placement. 
@@ -234,7 +242,7 @@ def pr_analysis(y, y_hat):
     recall = np.zeros((len(thresholds)))
     fpr = np.zeros((len(thresholds)))
     for idx, threshold in enumerate(thresholds):
-        precision[idx], recall[idx], fpr[idx] = get_pr_per_comma(y, y_hat, threshold=threshold)
+        precision[idx], recall[idx], fpr[idx] = get_pr_per_comma(y, y_hat, X, threshold=threshold)
     return precision, recall, fpr
 
 def get_optimal_threshold(precision, recall, thresholds):
