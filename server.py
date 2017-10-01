@@ -27,7 +27,7 @@ manager.add_command("runserver", Server(host="0.0.0.0", port=80))
 #----------------------------------------------------------------------------------------
 class NameForm(FlaskForm):
     text = TextAreaField('')
-    submit = SubmitField('Submit')
+    submit = SubmitField('Sæt kommaer')
 #----------------------------------------------------------------------------------------
 # Initializing models and parameters
 #----------------------------------------------------------------------------------------

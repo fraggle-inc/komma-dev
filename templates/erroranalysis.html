@@ -5,11 +5,6 @@
 {% block body %}
   <div class=content>
     <p class=text>
-        <div class=tp-token> True positive, </div> 
-        <div class=fp-token> false positive, </div>
-        <div class=fn-token> false negative. </div> 
-    </p>
-    <p class=text>
       {% for word in text %}
         {% if loop.index-1 in fp %}
           <div class=fp-token> {{word}} </div>

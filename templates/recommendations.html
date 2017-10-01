@@ -1,13 +1,8 @@
 {% extends "layout.html" %}
-
 {% import "bootstrap/wtf.html" as wtf %}
-
 {% block body %}
   <div class=content>
-    {{ wtf.quick_form(form) }}
-    <p>
-      Vi foreslår, at du sætter komma de følgende steder:
-    </p>
+    {{ wtf.quick_form(form)}}
     <p class=input_text>
       {{text}}
     </p>
