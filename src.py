@@ -61,16 +61,19 @@ def manual_error_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     words = eu_data_dev[idx].features
     idx_true = np.where(y==1)[0]
     idx_pred = np.where(y_hat>threshold)[0]
+    fn_idx, fp_idx, tp_idx = [], [], []
     for true_idx in idx_true:
         if true_idx in idx_pred:
-            words[true_idx] = words[true_idx]+', [TP]'
+            words[true_idx] = words[true_idx]+','
+            tp_idx.append(true_idx)
         else:
-            words[true_idx] = words[true_idx]+', [FN]'
+            words[true_idx] = words[true_idx]+','
+            fn_idx.append(true_idx)
     for pred_idx in idx_pred:
         if pred_idx not in idx_true:
-            words[pred_idx] = words[pred_idx]+' [FP]'
-    error_sentence = ' '.join(words)
-    return error_sentence
+            words[pred_idx] = words[pred_idx]
+            fp_idx.append(pred_idx)
+    return words, fn_idx, fp_idx, tp_idx
 
 def manual_valid_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     if idx is None:
@@ -82,13 +85,14 @@ def manual_valid_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     words = eu_data_dev[idx].features
     idx_true = np.where(y==1)[0]
     idx_pred = np.where(y_hat>threshold)[0]
+    tp_idx = []
     for true_idx in idx_true:
         if true_idx in idx_pred:
-            words[true_idx] = words[true_idx]+', [TP]'
+            words[true_idx] = words[true_idx]+','
+            tp_idx.append(true_idx)
         else:
-            words[true_idx] = words[true_idx]+', [FN]'
+            words[true_idx] = words[true_idx]+','
     for pred_idx in idx_pred:
         if pred_idx not in idx_true:
-            words[pred_idx] = words[pred_idx]+' [FP]'
-    valid_sentence = ' '.join(words)
-    return valid_sentence
+            words[pred_idx] = words[pred_idx]
+    return words, tp_idx

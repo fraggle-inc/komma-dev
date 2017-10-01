@@ -4,8 +4,23 @@
 
 {% block body %}
   <div class=content>
-    <p class=error>
-      {{text}}
+    <p class=text>
+        <div class=tp-token> True positive, </div> 
+        <div class=fp-token> false positive, </div>
+        <div class=fn-token> false negative. </div> 
+    </p>
+    <p class=text>
+      {% for word in text %}
+        {% if loop.index-1 in fp %}
+          <div class=fp-token> {{word}} </div>
+        {% elif loop.index-1 in tp %}
+          <div class=tp-token> {{word}} </div>
+        {% elif loop.index-1 in fn %}
+          <div class=fn-token> {{word}} </div>
+        {% else %}
+          <div class=token> {{word}} </div>
+        {% endif %}
+      {% endfor %}
     </p>
   </div>
 {% endblock %}

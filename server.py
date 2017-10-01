@@ -52,13 +52,15 @@ def landing_page():
 
 @app.route('/erroranalysis', methods=['POST', 'GET'])
 def manuel_error_analysis():
-    error_example = src.manual_error_analysis(eu_data_dev, None, Y_dev, Y_hat, threshold=threshold)
-    return render_template('erroranalysis.html', text=error_example)
+    error_example, fn_idx, fp_idx, tp_idx = src.manual_error_analysis(eu_data_dev, None, Y_dev, Y_hat, threshold=threshold)
+    return render_template('erroranalysis.html',
+                            text=error_example,
+                            fp=fp_idx, fn=fn_idx, tp=tp_idx)
 
 @app.route('/validanalysis', methods=['POST', 'GET'])
 def manuel_valid_analysis():
-    valid_example = src.manual_valid_analysis(eu_data_dev, None, Y_dev, Y_hat, threshold=threshold)
-    return render_template('validanalysis.html', text=valid_example)
+    valid_example, tp_idx = src.manual_valid_analysis(eu_data_dev, None, Y_dev, Y_hat, threshold=threshold)
+    return render_template('validanalysis.html', text=valid_example, tp=tp_idx)
 
 if __name__ == '__main__':
     manager.run()

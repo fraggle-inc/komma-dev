@@ -3,9 +3,18 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block body %}
-  <div class=content>
-    <p class=valid>
-      {{text}}
-    </p>
-  </div>
+<div class=content>
+  <p class=text>
+      <div class=tp-token> True positive.</div> 
+  </p>
+  <p class=text>
+    {% for word in text %}
+      {% if loop.index-1 in tp %}
+        <div class=tp-token> {{word}} </div>
+      {% else %}
+        <div class=token> {{word}} </div>
+      {% endif %}
+    {% endfor %}
+  </p>
+</div>
 {% endblock %}

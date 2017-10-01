@@ -22,25 +22,27 @@ input.break {
     margin: 20px 0;
 }
 
-.tag-name,
-.tag-probability {
-    display: block;
-}
-
-.tag-name {
-    font-weight: 800;
-}
-
-.tag-probability {
-    font-size: 12px;
-}
-
-.game-tag {
+.token {
     text-align: center;
-    border: 1px solid gray;
-    padding: 20px;
     display: inline-block;
-    margin-bottom: 4px;
+}
+
+.fp-token {
+    color: red;
+    text-align: center;
+    display: inline-block;
+}
+
+.fn-token {
+    color: orange;
+    text-align: center;
+    display: inline-block;
+}
+
+.tp-token {
+    color: green;
+    text-align: center;
+    display: inline-block;
 }
 
 input[type=submit]   { width: 405px; }
