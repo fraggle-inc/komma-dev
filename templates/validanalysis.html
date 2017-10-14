@@ -6,11 +6,18 @@
 <div class=content>
   <p class=text>
     {% for word in text %}
+    <div class=chunck>
       {% if loop.index-1 in tp %}
         <div class=tp-token> {{word}} </div>
       {% else %}
         <div class=token> {{word}} </div>
       {% endif %}
+      {% if proba[loop.index-1]>0 %}
+        <div class=proba>({{proba[loop.index-1]}})</div>
+      {% else %}
+        <div class=low_proba>.</div>
+      {% endif %}
+    </div>
     {% endfor %}
   </p>
 </div>

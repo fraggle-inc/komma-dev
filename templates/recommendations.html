@@ -4,7 +4,16 @@
   <div class=content>
     {{ wtf.quick_form(form)}}
     <p class=input_text>
-      {{text}}
+      {% for word in text %}
+      <div class=chunck>
+        <div class=word>{{text[loop.index-1]}}</div>
+        {% if proba[loop.index-1]>0 %}
+          <div class=proba>({{proba[loop.index-1]}})</div>
+        {% else %}
+          <div class=low_proba>.</div>
+        {% endif %}
+      </div>
+      {% endfor %}
     </p>
   </div>
 {% endblock %}

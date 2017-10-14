@@ -43,13 +43,29 @@ def apply_commas(sentence, commas):
             temp += chunk.name[:-1] + chunk.trailing_whitespace
     return temp
 
+def apply_commas_to_chuncks(sentence, commas):
+    assert len(sentence.chunks) == len(commas)
+    temp = []
+    for chunk, comma in zip(sentence.chunks, commas):
+        if comma == chunk.comma:
+            temp.append(chunk.name + chunk.trailing_whitespace)
+            continue
+        
+        if comma:
+            temp.append(chunk.name + "," + chunk.trailing_whitespace)
+        else:
+            temp.append(chunk.name[:-1] + chunk.trailing_whitespace)
+    return temp
+
 def process_input(text_input, parser, vocab, MAX_CHUNKS, model, threshold):
     text = parser.parse(text_input)
     embedded = embed_sentence(text, vocab, MAX_CHUNKS)
     embedded = sequence.pad_sequences([embedded], maxlen=MAX_CHUNKS)
     yhat = model.predict_proba(embedded)
     y_hat_commas = yhat[0][:len(text.chunks)] >= threshold
-    return apply_commas(text, y_hat_commas)
+    printable_proba = [int(proba*100)/100 for proba in yhat[0][:len(text.chunks)]]
+    printable_text = apply_commas_to_chuncks(text, y_hat_commas)
+    return printable_text, printable_proba
 
 def manual_error_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     if idx is None:
@@ -59,9 +75,12 @@ def manual_error_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     y = Y[idx]
     y_hat = Y_hat[idx]
     words = eu_data_dev[idx].features
+    printable_proba = [int(proba*100)/100 for proba in y_hat[:len(eu_data_dev[idx].chunks)]]
+
     idx_true = np.where(y==1)[0]
     idx_pred = np.where(y_hat>threshold)[0]
     fn_idx, fp_idx, tp_idx = [], [], []
+    
     for true_idx in idx_true:
         if true_idx in idx_pred:
             words[true_idx] = words[true_idx]+','
@@ -73,7 +92,7 @@ def manual_error_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
         if pred_idx not in idx_true:
             words[pred_idx] = words[pred_idx]
             fp_idx.append(pred_idx)
-    return words, fn_idx, fp_idx, tp_idx
+    return words, printable_proba, fn_idx, fp_idx, tp_idx
 
 def manual_valid_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     if idx is None:
@@ -82,7 +101,9 @@ def manual_valid_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
         idx = idx_of_wrong[np.random.randint(len(idx_of_wrong))]
     y = Y[idx]
     y_hat = Y_hat[idx]
+    printable_proba = [int(proba*100)/100 for proba in y_hat[:len(eu_data_dev[idx].chunks)]]
     words = eu_data_dev[idx].features
+
     idx_true = np.where(y==1)[0]
     idx_pred = np.where(y_hat>threshold)[0]
     tp_idx = []
@@ -95,4 +116,4 @@ def manual_valid_analysis(eu_data_dev, idx, Y, Y_hat, threshold=0.5):
     for pred_idx in idx_pred:
         if pred_idx not in idx_true:
             words[pred_idx] = words[pred_idx]
-    return words, tp_idx
+    return words, printable_proba, tp_idx

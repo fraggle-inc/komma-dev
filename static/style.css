@@ -21,6 +21,25 @@ input[type=submit]   { width: 405px; }
     margin: 20px 0;
 }
 
+.chunck {
+    display: inline-block;
+}
+
+.word {
+    text-align: center;
+}
+
+.proba {
+    text-align: center;
+    font-size: 0.45em;
+    color: grey;
+}
+.low_proba {
+    text-align: center;
+    font-size: 0.45em;
+    opacity: 0;
+}
+
 .token {
     text-align: center;
     display: inline-block;
