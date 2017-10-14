@@ -1,0 +1,6 @@
+env
+notebooks
+scripts
+__pycache__
+data/steam_tag_metrix.npy
+models/steam_nn_model_collection*
